@@ -55,3 +55,15 @@
 
         </table>
     }
+
+@section Scripts {
+    <script>
+
+        $(function() {
+            $("a.delete").click(function() {
+                if (!confirm("Confirm Page Deletion")) return false;
+            });
+        });
+    </script>
+
+}
