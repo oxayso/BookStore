@@ -115,5 +115,68 @@ namespace OfficialBookStore.Areas.Admin.Controllers
             return View(model);
         }
 
+
+
+        [HttpPost]
+        public ActionResult EditPage(PageVM model)
+        {
+            // Check model state
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            using (Db db = new Db())
+            {
+                // Get page id
+                int id = model.Id;
+
+                // Init slug
+                string slug = "home";
+
+                // Get the page
+                PageDTO dto = db.Pages.Find(id);
+
+                // DTO the title
+                dto.Title = model.Title;
+
+                // Check for slug and set it if need be
+                if (model.Slug != "home")
+                {
+                    if (string.IsNullOrWhiteSpace(model.Slug))
+                    {
+                        slug = model.Title.Replace(" ", "-").ToLower();
+                    }
+                    else
+                    {
+                        slug = model.Slug.Replace(" ", "-").ToLower();
+                    }
+                }
+
+                // Make sure title and slug are unique
+                if (db.Pages.Where(x => x.Id != id).Any(x => x.Title == model.Title) ||
+                     db.Pages.Where(x => x.Id != id).Any(x => x.Slug == slug))
+                {
+                    ModelState.AddModelError("", "The title or slug you entered already exists.");
+                    return View(model);
+                }
+
+                // DTO the rest
+                dto.Slug = slug;
+                dto.Body = model.Body;
+                dto.HasSidebar = model.HasSidebar;
+
+                // Save the DTO
+                db.SaveChanges();
+            }
+
+            // Set TempData message
+            TempData["SM"] = "Successfully edited the page!";
+
+            // Redirect
+            return RedirectToAction("EditPage");
+        }
+
+
     }
 }
