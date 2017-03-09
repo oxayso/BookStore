@@ -29,5 +29,38 @@ namespace OfficialBookStore.Areas.Admin.Controllers
             // Return view with list
             return View(categoryVMList);
         }
+
+        [HttpPost]
+        public string AddNewCategory(string catName)
+        {
+            // Declare id
+            string id;
+
+            using (Db db = new Db())
+            {
+                // Check that the category name is unique
+                if (db.Categories.Any(x => x.Name == catName))
+                    return "titletaken";
+
+                // Init DTO
+                CategoryDTO dto = new CategoryDTO();
+
+                // Add to DTO
+                dto.Name = catName;
+                dto.Slug = catName.Replace(" ", "-").ToLower();
+                dto.Sorting = 100;
+
+                // Save DTO
+                db.Categories.Add(dto);
+                db.SaveChanges();
+
+                // Get the id
+                id = dto.Id.ToString();
+            }
+
+            // Return id
+            return id;
+        }
+
     }
 }
