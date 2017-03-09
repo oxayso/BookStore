@@ -9,7 +9,7 @@
 <div class="new-cat">
     <input type="text" id="newcatname" />
     <p>
-        <a href="#" id="newcata">Add a New Category</a>
+        <a href="#" id="newcata">Add a new category</a>
         <span class="ajax-text">
             <img src="~/Content/img/ajax-loader.gif" />
         </span>
@@ -126,22 +126,27 @@ else
                     });
             });
 
+            // Confirm Category Deletion
+
+            $("table#pages tbody").sortable({
+                items: "tr:not(.home)",
+                placeholder: "ui-state-highlight",
+                update: function () {
+                    var ids = $("table#pages tbody").sortable("serialize");
+                    var url = "/Admin/Shop/ReorderCategories";
+
+                    $.post(url, ids, function (data) {
+                    });
+                }
+            });
 
             
             //Reorder categories
             
 
-            //$("table#pages tbody").sortable({
-            //    items: "tr:not(.home)",
-            //    placeholder: "ui-state-highlight",
-            //    update: function () {
-            //        var ids = $("table#pages tbody").sortable("serialize");
-            //        var url = "/Admin/Shop/ReorderCategories";
-
-            //        $.post(url, ids, function (data) {
-            //        });
-            //    }
-            //});
+            $("body").on("click", "a.delete", function () {
+                if (!confirm("Confirm page deletion")) return false;
+            });
 
             ////////////////////////////////////////////////////////////////
 
