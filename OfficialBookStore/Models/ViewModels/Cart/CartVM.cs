@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace OfficialBookStore.Views.Cart
+namespace OfficialBookStore.Models.ViewModels.Cart
 {
     public class CartVM
     {
