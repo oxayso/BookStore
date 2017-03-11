@@ -19,8 +19,6 @@
         $@Html.DisplayFor(model => model.Price)
         <br />
 
-        @if (Request.IsAuthenticated)
-        {
             <div class="addtocart">
                 <a href="#" class="addtocart">Add to Cart</a>
                 <span class="loader">
@@ -28,8 +26,6 @@
                 </span>
                 <span class="ajaxmsg">The product has been added to your cart!</span>
             </div>
-        }
-
     </div>
 
 </div>
@@ -60,21 +56,26 @@
 
     <script src="~/Scripts/jquery.fancybox.js"></script>
     <script>
-$(function () {
+    $(function() {
 
-    /*
-    * Fancybox
-    */
+        /*
+        * Fancybox
+        */
 
-    $(".fancybox").fancybox();
+        $(".fancybox").fancybox();
 
-    ////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////
 
-    /*
+        });
+</script>
+
+}
+
+    @*/*
     * Add to cart
-    */
+    */*@
 
-    $("a.addtocart").click(function (e) {
+    @*$("a.addtocart").click(function (e) {
         e.preventDefault();
 
         $("span.loader").addClass("ib");
@@ -98,4 +99,4 @@ $(function () {
 });
     </script>
 
-}
+}*@
