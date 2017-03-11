@@ -153,5 +153,52 @@ namespace OfficialBookStore.Controllers
             }
 
         }
+
+        public ActionResult DecrementProduct(int productId)
+        {
+            // Init cart
+            List<CartVM> cart = Session["cart"] as List<CartVM>;
+
+            using (Db db = new Db())
+            {
+                // Get model from list
+                CartVM model = cart.FirstOrDefault(x => x.ProductId == productId);
+
+                // Decrement qty
+                if (model.Quantity > 1)
+                {
+                    model.Quantity--;
+                }
+                else
+                {
+                    model.Quantity = 0;
+                    cart.Remove(model);
+                }
+
+                // Store needed data
+                var result = new { qty = model.Quantity, price = model.Price };
+
+                // Return json
+                return Json(result, JsonRequestBehavior.AllowGet);
+            }
+
+        }
+
+        public void RemoveProduct(int productId)
+        {
+            // Init cart list
+            List<CartVM> cart = Session["cart"] as List<CartVM>;
+
+            using (Db db = new Db())
+            {
+                // Get model from list
+                CartVM model = cart.FirstOrDefault(x => x.ProductId == productId);
+
+                // Remove model from list
+                cart.Remove(model);
+            }
+
+        }
+
     }
 }
