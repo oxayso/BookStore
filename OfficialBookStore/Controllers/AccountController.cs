@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.Security;
 using OfficialBookStore.Models.Data;
 using OfficialBookStore.Models.ViewModels.Account;
 
@@ -28,6 +29,39 @@ namespace OfficialBookStore.Controllers
 
             // Return view
             return View();
+        }
+
+        [HttpPost]
+        public ActionResult Login(LoginUserVM model)
+        {
+            // Check model state
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            // Check if the user is valid
+
+            bool isValid = false;
+
+            using (Db db = new Db())
+            {
+                if (db.User.Any(x => x.UserName.Equals(model.Username) && x.Password.Equals(model.Password)))
+                {
+                    isValid = true;
+                }
+            }
+
+            if (!isValid)
+            {
+                ModelState.AddModelError("", "Invalid username or password.");
+                return View(model);
+            }
+            else
+            {
+                FormsAuthentication.SetAuthCookie(model.Username, model.RememberMe);
+                return Redirect(FormsAuthentication.GetRedirectUrl(model.Username, model.RememberMe));
+            }
         }
 
 
@@ -101,5 +135,62 @@ namespace OfficialBookStore.Controllers
             return Redirect("~/account/login");
         }
 
+        [Authorize]
+        public ActionResult Logout()
+        {
+            FormsAuthentication.SignOut();
+            return Redirect("~/account/login");
+        }
+
+
+        [Authorize]
+        public ActionResult UserNavPartial()
+        {
+            // Get username
+            string username = User.Identity.Name;
+
+            // Declare model
+            UserNavPartialVM model;
+
+            using (Db db = new Db())
+            {
+                // Get the user
+                UserDTO dto = db.User.FirstOrDefault(x => x.UserName == username);
+
+                // Build the model
+                model = new UserNavPartialVM()
+                {
+                    FirstName = dto.FirstName,
+                    LastName = dto.LastName
+                };
+            }
+
+            // Return partial view with model
+            return PartialView(model);
+        }
+
+        [HttpGet]
+        [ActionName("user-profile")]
+        [Authorize]
+        public ActionResult UserProfile()
+        {
+            // Get username
+            string username = User.Identity.Name;
+
+            // Declare model
+            UserProfileVM model;
+
+            using (Db db = new Db())
+            {
+                // Get user
+                UserDTO dto = db.User.FirstOrDefault(x => x.UserName == username);
+
+                // Build model
+                model = new UserProfileVM(dto);
+            }
+
+            // Return view with model
+            return View("UserProfile", model);
+        }
     }
 }
