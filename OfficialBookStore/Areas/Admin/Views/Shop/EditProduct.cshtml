@@ -116,81 +116,77 @@
     <script src="~/Scripts/dropzone/dropzone.js"></script>
     <script>
 
-        $(function() {
+$(function () {
 
-            /*
-            * Preview selected image
-            */
+    /*
+    * Preview selected image
+    */
 
-            function readURL(input) {
-                if (input.files && input.files[0]) {
-                    var reader = new FileReader();
+    function readURL(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
 
-                    reader.onload = function(e) {
-                        $("img#imgpreview")
-                            .attr("src", e.target.result)
-                            .width(200)
-                            .height(200);
-                    }
-
-                    reader.readAsDataURL(input.files[0]);
-                }
+            reader.onload = function (e) {
+                $("img#imgpreview")
+                    .attr("src", e.target.result)
+                    .width(200)
+                    .height(200);
             }
 
-            $("#ImageUpload").change(function() {
-                readURL(this);
-            });
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
 
-            //////////////////////////////////////////////////////////////
+    $("#ImageUpload").change(function () {
+        readURL(this);
+    });
 
-            /*
-            * Dropzone js
-            */
+    //////////////////////////////////////////////////////////////
 
-            Dropzone.options.dropzoneForm = {
-                acceptedFiles: "image/*",
-                init: function() {
-                    this.on("complete",
-                        function(file) {
-                            if (this.getUploadingFiles().length === 0 && this.getQueuedFiles().length === 0) {
-                                location.reload();
-                            }
-                        });
+    /*
+    * Dropzone js
+    */
 
-                    this.on("sending",
-                        function(file, xhr, formData) {
-                            formData.append("id", @Model.Id);
-                        });
+    Dropzone.options.dropzoneForm = {
+        acceptedFiles: "image/*",
+        init: function() {
+            this.on("complete", function (file) {
+                if (this.getUploadingFiles().length === 0 && this.getQueuedFiles().length === 0) {
+                    location.reload();
                 }
-            };
-
-            //////////////////////////////////////////////////////////////
-
-            /*
-            * Dropzone js
-            */
-
-            $("a.deleteimage").click(function(e) {
-                e.preventDefault();
-
-                if (!confirm("Confirm deletion")) return false;
-
-                var $this = $(this);
-                var url = "/admin/shop/DeleteImage";
-                var imageName = $this.data("name");
-
-                $.post(url,
-                    { id: @Model.Id, imageName: imageName },
-                    function(data) {
-                        $this.parent().fadeOut("fast");
-                    });
-
             });
 
-            //////////////////////////////////////////////////////////////
+            this.on("sending", function (file, xhr, formData) {
+                formData.append("id", @Model.Id);
+            });
+        }
+    };
 
+    //////////////////////////////////////////////////////////////
 
+    /*
+    * Dropzone js
+    */
+
+    $("a.deleteimage").click(function (e) {
+        e.preventDefault();
+
+        if (!confirm("Confirm deletion")) return false;
+
+        var $this = $(this);
+        var url = "/admin/shop/DeleteImage";
+        var imageName = $this.data("name");
+
+        $.post(url, { id: @Model.Id, imageName: imageName }, function(data) {
+            $this.parent().fadeOut("fast");
         });
+
+    });
+
+    //////////////////////////////////////////////////////////////
+
+
+});
 
     </script>
 
