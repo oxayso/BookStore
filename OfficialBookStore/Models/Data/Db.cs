@@ -15,6 +15,8 @@ namespace OfficialBookStore.Models.Data
         public DbSet<UserDTO> User { get; set; }
         public DbSet<RoleDTO> Role { get; set; }
         public DbSet<UserRoleDTO> UserRole { get; set; }
+        public DbSet<OrderDTO> Order { get; set; }
+        public DbSet<OrderDetailsDTO> OrderDetails { get; set; }
 
     }
 }
