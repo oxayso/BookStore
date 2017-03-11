@@ -132,5 +132,26 @@ namespace OfficialBookStore.Controllers
             return PartialView(model);
         }
 
+        public JsonResult IncrementProduct(int productId)
+        {
+            // Init cart list
+            List<CartVM> cart = Session["cart"] as List<CartVM>;
+
+            using (Db db = new Db())
+            {
+                // Get cartVM from list
+                CartVM model = cart.FirstOrDefault(x => x.ProductId == productId);
+
+                // Increment qty
+                model.Quantity++;
+
+                // Store needed data
+                var result = new { qty = model.Quantity, price = model.Price };
+
+                // Return json with data
+                return Json(result, JsonRequestBehavior.AllowGet);
+            }
+
+        }
     }
 }
