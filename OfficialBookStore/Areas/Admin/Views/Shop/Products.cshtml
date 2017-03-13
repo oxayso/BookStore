@@ -82,7 +82,7 @@
 $(function () {
 
     
-    //Select products from specified category
+    //user select from certain category
 
     $("#SelectCategory").on("change", function () {
         var url = $(this).val();
@@ -96,9 +96,7 @@ $(function () {
 
     //////////////////////////////////////////////////////////////
 
-    /*
-    * Confirm product deletion
-    */
+   
 
     $("a.delete").click(function () {
         if (!confirm("Confirm product deletion")) return false;

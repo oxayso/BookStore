@@ -13,15 +13,12 @@ namespace OfficialBookStore.Areas.Admin.Controllers
 {
     public class ShopController : Controller
     {
-        // GET: Admin/Shop/Categories
         public ActionResult Categories()
         {
-            // Declare a list of models
             List<CategoryVM> categoryVMList;
 
             using (Db db = new Db())
             {
-                // Init the list
                 categoryVMList = db.Categories
                     .ToArray()
                     .OrderBy(x => x.Sorting)
@@ -29,39 +26,31 @@ namespace OfficialBookStore.Areas.Admin.Controllers
                     .ToList();
             }
 
-            // Return view with list
             return View(categoryVMList);
         }
 
         [HttpPost]
         public string AddNewCategory(string catName)
         {
-            // Declare id
             string id;
 
             using (Db db = new Db())
             {
-                // Check that the category name is unique
                 if (db.Categories.Any(x => x.Name == catName))
                     return "titletaken";
 
-                // Init DTO
                 CategoryDTO dto = new CategoryDTO();
 
-                // Add to DTO
                 dto.Name = catName;
                 dto.Slug = catName.Replace(" ", "-").ToLower();
                 dto.Sorting = 100;
 
-                // Save DTO
                 db.Categories.Add(dto);
                 db.SaveChanges();
 
-                // Get the id
                 id = dto.Id.ToString();
             }
 
-            // Return id
             return id;
         }
 
@@ -71,13 +60,10 @@ namespace OfficialBookStore.Areas.Admin.Controllers
         {
             using (Db db = new Db())
             {
-                // Set initial count
                 int count = 1;
 
-                // Declare CategoryDTO
                 CategoryDTO dto;
 
-                // Set sorting for each category
                 foreach (var catId in id)
                 {
                     dto = db.Categories.Find(catId);
@@ -95,17 +81,13 @@ namespace OfficialBookStore.Areas.Admin.Controllers
         {
             using (Db db = new Db())
             {
-                // Get the category
                 CategoryDTO dto = db.Categories.Find(id);
 
-                // Remove the category
                 db.Categories.Remove(dto);
 
-                // Save
                 db.SaveChanges();
             }
 
-            // Redirect
             return RedirectToAction("Categories");
         }
 
@@ -115,45 +97,36 @@ namespace OfficialBookStore.Areas.Admin.Controllers
         {
             using (Db db = new Db())
             {
-                // Check category name is unique
                 if (db.Categories.Any(x => x.Name == newCatName))
                     return "titletaken";
 
-                // Get DTO
                 CategoryDTO dto = db.Categories.Find(id);
 
-                // Edit DTO
                 dto.Name = newCatName;
                 dto.Slug = newCatName.Replace(" ", "-").ToLower();
 
-                // Save
                 db.SaveChanges();
             }
 
-            // Return
             return "test";
         }
 
         [HttpGet]
         public ActionResult AddProduct()
         {
-            // Init model
             ProductVM model = new ProductVM();
 
-            // Add select list of categories to model
             using (Db db = new Db())
             {
                 model.Categories = new SelectList(db.Categories.ToList(), "Id", "Name");
             }
 
-            // Return view with model
             return View(model);
         }
 
         [HttpPost]
         public ActionResult AddProduct(ProductVM model, HttpPostedFileBase file)
         {
-            // Check model state
             if (!ModelState.IsValid)
             {
                 using (Db db = new Db())
@@ -163,7 +136,6 @@ namespace OfficialBookStore.Areas.Admin.Controllers
                 }
             }
 
-            // Make sure product name is unique
             using (Db db = new Db())
             {
                 if (db.Product.Any(x => x.Name == model.Name))
@@ -174,10 +146,8 @@ namespace OfficialBookStore.Areas.Admin.Controllers
                 }
             }
 
-            // Declare product id
             int id;
 
-            // Init and save productDTO
             using (Db db = new Db())
             {
                 ProductDTO product = new ProductDTO();
@@ -194,16 +164,13 @@ namespace OfficialBookStore.Areas.Admin.Controllers
                 db.Product.Add(product);
                 db.SaveChanges();
 
-                // Get the id
                 id = product.Id;
             }
 
-            // Set TempData message
             TempData["SM"] = "Successfully added a product!";
 
             #region Upload Image
 
-            // Create necessary directories
             var originalDirectory = new DirectoryInfo(string.Format("{0}Images\\Uploads", Server.MapPath(@"\")));
 
             var pathString1 = Path.Combine(originalDirectory.ToString(), "Products");
@@ -227,13 +194,10 @@ namespace OfficialBookStore.Areas.Admin.Controllers
             if (!Directory.Exists(pathString5))
                 Directory.CreateDirectory(pathString5);
 
-            // Check if a file was uploaded
             if (file != null && file.ContentLength > 0)
             {
-                // Get file extension
                 string ext = file.ContentType.ToLower();
 
-                // Verify extension
                 if (ext != "image/jpg" &&
                     ext != "image/jpeg" &&
                     ext != "image/pjpeg" &&
@@ -249,10 +213,8 @@ namespace OfficialBookStore.Areas.Admin.Controllers
                     }
                 }
 
-                // Init image name
                 string imageName = file.FileName;
 
-                // Save image name to DTO
                 using (Db db = new Db())
                 {
                     ProductDTO dto = db.Product.Find(id);
@@ -261,14 +223,11 @@ namespace OfficialBookStore.Areas.Admin.Controllers
                     db.SaveChanges();
                 }
 
-                // Set original and thumb image paths
                 var path = string.Format("{0}\\{1}", pathString2, imageName);
                 var path2 = string.Format("{0}\\{1}", pathString3, imageName);
 
-                // Save original
                 file.SaveAs(path);
 
-                // Create and save thumb
                 WebImage img = new WebImage(file.InputStream);
                 img.Resize(200, 200);
                 img.Save(path2);
@@ -276,80 +235,63 @@ namespace OfficialBookStore.Areas.Admin.Controllers
 
             #endregion
 
-            // Redirect
             return RedirectToAction("AddProduct");
         }
 
         public ActionResult Products(int? page, int? catId)
         {
-            // Declare a list of ProductVM
             List<ProductVM> listOfProductVM;
 
-            // Set page number
             var pageNumber = page ?? 1;
 
             using (Db db = new Db())
             {
-                // Init the list
                 listOfProductVM = db.Product.ToArray()
                                   .Where(x => catId == null || catId == 0 || x.CategoryId == catId)
                                   .Select(x => new ProductVM(x))
                                   .ToList();
 
-                // Populate categories select list
                 ViewBag.Categories = new SelectList(db.Categories.ToList(), "Id", "Name");
 
-                // Set selected category
                 ViewBag.SelectedCat = catId.ToString();
             }
 
-            // Set pagination
             var onePageOfProducts = listOfProductVM.ToPagedList(pageNumber, 3);
             ViewBag.OnePageOfProducts = onePageOfProducts;
 
-            // Return view with list
             return View(listOfProductVM);
         }
 
         [HttpGet]
         public ActionResult EditProduct(int id)
         {
-            // Declare productVM
             ProductVM model;
 
             using (Db db = new Db())
             {
-                // Get the product
                 ProductDTO dto = db.Product.Find(id);
 
-                // Make sure product exists
                 if (dto == null)
                 {
                     return Content("That product does not exist.");
                 }
 
-                // init model
                 model = new ProductVM(dto);
 
-                // Make a select list
                 model.Categories = new SelectList(db.Categories.ToList(), "Id", "Name");
 
-                // Get all gallery images
                 model.GalleryImages = Directory.EnumerateFiles(Server.MapPath("~/Images/Uploads/Products/" + id + "/Gallery/Thumbs"))
                                                 .Select(fn => Path.GetFileName(fn));
             }
 
-            // Return view with model
             return View(model);
         }
 
         [HttpPost]
         public ActionResult EditProduct(ProductVM model, HttpPostedFileBase file)
         {
-            // Get product id
             int id = model.Id;
 
-            // Populate categories select list and gallery images
             using (Db db = new Db())
             {
                 model.Categories = new SelectList(db.Categories.ToList(), "Id", "Name");
@@ -357,23 +299,20 @@ namespace OfficialBookStore.Areas.Admin.Controllers
             model.GalleryImages = Directory.EnumerateFiles(Server.MapPath("~/Images/Uploads/Products/" + id + "/Gallery/Thumbs"))
                                                 .Select(fn => Path.GetFileName(fn));
 
-            // Check model state
             if (!ModelState.IsValid)
             {
                 return View(model);
             }
 
-            // Make sure product name is unique
             using (Db db = new Db())
             {
                 if (db.Product.Where(x => x.Id != id).Any(x => x.Name == model.Name))
                 {
-                    ModelState.AddModelError("", "Sorry! That product name is taken!");
+                    ModelState.AddModelError("", "Sorry! That product name already exists!");
                     return View(model);
                 }
             }
 
-            // Update product
             using (Db db = new Db())
             {
                 ProductDTO dto = db.Product.Find(id);
@@ -391,19 +330,15 @@ namespace OfficialBookStore.Areas.Admin.Controllers
                 db.SaveChanges();
             }
 
-            // Set TempData message
             TempData["SM"] = "Successfully edited the product!";
 
             #region Image Upload
 
-            // Check for file upload
             if (file != null && file.ContentLength > 0)
             {
 
-                // Get extension
                 string ext = file.ContentType.ToLower();
 
-                // Verify extension
                 if (ext != "image/jpg" &&
                     ext != "image/jpeg" &&
                     ext != "image/pjpeg" &&
@@ -418,13 +353,11 @@ namespace OfficialBookStore.Areas.Admin.Controllers
                     }
                 }
 
-                // Set uplpad directory paths
                 var originalDirectory = new DirectoryInfo(string.Format("{0}Images\\Uploads", Server.MapPath(@"\")));
 
                 var pathString1 = Path.Combine(originalDirectory.ToString(), "Products\\" + id.ToString());
                 var pathString2 = Path.Combine(originalDirectory.ToString(), "Products\\" + id.ToString() + "\\Thumbs");
 
-                // Delete files from directories
 
                 DirectoryInfo di1 = new DirectoryInfo(pathString1);
                 DirectoryInfo di2 = new DirectoryInfo(pathString2);
@@ -435,7 +368,6 @@ namespace OfficialBookStore.Areas.Admin.Controllers
                 foreach (FileInfo file3 in di2.GetFiles())
                     file3.Delete();
 
-                // Save image name
 
                 string imageName = file.FileName;
 
@@ -447,7 +379,6 @@ namespace OfficialBookStore.Areas.Admin.Controllers
                     db.SaveChanges();
                 }
 
-                // Save original and thumb images
 
                 var path = string.Format("{0}\\{1}", pathString1, imageName);
                 var path2 = string.Format("{0}\\{1}", pathString2, imageName);
@@ -461,33 +392,26 @@ namespace OfficialBookStore.Areas.Admin.Controllers
 
             #endregion
 
-            // Redirect
             return RedirectToAction("EditProduct");
         }
 
         [HttpPost]
         public void SaveGalleryImages(int id)
         {
-            // Loop through files
             foreach (string fileName in Request.Files)
             {
-                // Init the file
                 HttpPostedFileBase file = Request.Files[fileName];
 
-                // Check it's not null
                 if (file != null && file.ContentLength > 0)
                 {
-                    // Set directory paths
                     var originalDirectory = new DirectoryInfo(string.Format("{0}Images\\Uploads", Server.MapPath(@"\")));
 
                     string pathString1 = Path.Combine(originalDirectory.ToString(), "Products\\" + id.ToString() + "\\Gallery");
                     string pathString2 = Path.Combine(originalDirectory.ToString(), "Products\\" + id.ToString() + "\\Gallery\\Thumbs");
 
-                    // Set image paths
                     var path = string.Format("{0}\\{1}", pathString1, file.FileName);
                     var path2 = string.Format("{0}\\{1}", pathString2, file.FileName);
 
-                    // Save original and thumb
 
                     file.SaveAs(path);
                     WebImage img = new WebImage(file.InputStream);
@@ -501,7 +425,6 @@ namespace OfficialBookStore.Areas.Admin.Controllers
 
         public ActionResult DeleteProduct(int id)
         {
-            // Delete product from DB
             using (Db db = new Db())
             {
                 ProductDTO dto = db.Product.Find(id);
@@ -510,14 +433,12 @@ namespace OfficialBookStore.Areas.Admin.Controllers
                 db.SaveChanges();
             }
 
-            // Delete product folder
             var originalDirectory = new DirectoryInfo(string.Format("{0}Images\\Uploads", Server.MapPath(@"\")));
             string pathString = Path.Combine(originalDirectory.ToString(), "Products\\" + id.ToString());
 
             if (Directory.Exists(pathString))
                 Directory.Delete(pathString, true);
 
-            // Redirect
             return RedirectToAction("Products");
         }
 

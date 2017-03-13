@@ -62,19 +62,12 @@
 
 $(function () {
 
-    /*
-    * Confirm page deletion
-    */
-
     $("a.delete").click(function () {
         if (!confirm("Confirm page deletion")) return false;
     });
 
     //////////////////////////////////////////////////////////////
 
-    /*
-    * Reorder pages
-    */
 
     $("table#pages tbody").sortable({
         items: "tr:not(.home)",

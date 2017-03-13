@@ -11,7 +11,6 @@ namespace OfficialBookStore.Controllers
 {
     public class AccountController : Controller
     {
-        // GET: Account
         public ActionResult Index()
         {
             return Redirect("~/account/login");
@@ -20,27 +19,23 @@ namespace OfficialBookStore.Controllers
         [HttpGet]
         public ActionResult Login()
         {
-            // Confirm user is not logged in
 
             string username = User.Identity.Name;
 
             if (!string.IsNullOrEmpty(username))
                 return RedirectToAction("user-profile");
 
-            // Return view
             return View();
         }
 
         [HttpPost]
         public ActionResult Login(LoginUserVM model)
         {
-            // Check model state
             if (!ModelState.IsValid)
             {
                 return View(model);
             }
 
-            // Check if the user is valid
 
             bool isValid = false;
 
@@ -76,13 +71,11 @@ namespace OfficialBookStore.Controllers
         [HttpPost]
         public ActionResult CreateAccount(UserVM model)
         {
-            // Check model state
             if (!ModelState.IsValid)
             {
                 return View("CreateAccount", model);
             }
 
-            // Check if passwords match
             if (!model.Password.Equals(model.ConfirmPassword))
             {
                 ModelState.AddModelError("", "Passwords do not match.");
@@ -91,7 +84,6 @@ namespace OfficialBookStore.Controllers
 
             using (Db db = new Db())
             {
-                // Make sure username is unique
                 if (db.User.Any(x => x.UserName.Equals(model.UserName)))
                 {
                     ModelState.AddModelError("", "Username " + model.UserName + " is taken.");
@@ -99,7 +91,6 @@ namespace OfficialBookStore.Controllers
                     return View("CreateAccount", model);
                 }
 
-                // Create userDTO
                 UserDTO userDTO = new UserDTO()
                 {
                     FirstName = model.FirstName,
@@ -109,13 +100,10 @@ namespace OfficialBookStore.Controllers
                     Password = model.Password
                 };
 
-                // Add the DTO
                 db.User.Add(userDTO);
 
-                // Save
                 db.SaveChanges();
 
-                // Add to UserRolesDTO
                 int id = userDTO.Id;
 
                 UserRoleDTO userRolesDTO = new UserRoleDTO()
@@ -128,10 +116,8 @@ namespace OfficialBookStore.Controllers
                 db.SaveChanges();
             }
 
-            // Create a TempData message
-            TempData["SM"] = "You are now registered and can login.";
+            TempData["SM"] = "Congratulations! You are now registered.";
 
-            // Redirect
             return Redirect("~/account/login");
         }
 
@@ -146,18 +132,14 @@ namespace OfficialBookStore.Controllers
         [Authorize]
         public ActionResult UserNavPartial()
         {
-            // Get username
             string username = User.Identity.Name;
 
-            // Declare model
             UserNavPartialVM model;
 
             using (Db db = new Db())
             {
-                // Get the user
                 UserDTO dto = db.User.FirstOrDefault(x => x.UserName == username);
 
-                // Build the model
                 model = new UserNavPartialVM()
                 {
                     FirstName = dto.FirstName,
@@ -165,7 +147,6 @@ namespace OfficialBookStore.Controllers
                 };
             }
 
-            // Return partial view with model
             return PartialView(model);
         }
 
@@ -174,22 +155,17 @@ namespace OfficialBookStore.Controllers
         [Authorize]
         public ActionResult UserProfile()
         {
-            // Get username
             string username = User.Identity.Name;
 
-            // Declare model
             UserProfileVM model;
 
             using (Db db = new Db())
             {
-                // Get user
                 UserDTO dto = db.User.FirstOrDefault(x => x.UserName == username);
 
-                // Build model
                 model = new UserProfileVM(dto);
             }
 
-            // Return view with model
             return View("UserProfile", model);
         }
     }

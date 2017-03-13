@@ -12,20 +12,16 @@ namespace OfficialBookStore.Controllers
 {
     public class CartController : Controller
     {
-        // GET: Cart
         public ActionResult Index()
         {
-            // Init the cart list
             var cart = Session["cart"] as List<CartVM> ?? new List<CartVM>();
 
-            // Check if cart is empty
             if (cart.Count == 0 || Session["cart"] == null)
             {
                 ViewBag.Message = "Your cart is empty.";
                 return View();
             }
 
-            // Calculate total and save to ViewBag
 
             decimal total = 0m;
 
@@ -36,25 +32,19 @@ namespace OfficialBookStore.Controllers
 
             ViewBag.GrandTotal = total;
 
-            // Return view with list
             return View(cart);
         }
 
         public ActionResult CartPartial()
         {
-            // Init CartVM
             CartVM model = new CartVM();
 
-            // Init quantity
             int qty = 0;
 
-            // Init price
             decimal price = 0m;
 
-            // Check for cart session
             if (Session["cart"] != null)
             {
-                // Get total qty and price
                 var list = (List<CartVM>)Session["cart"];
 
                 foreach (var item in list)
@@ -69,32 +59,25 @@ namespace OfficialBookStore.Controllers
             }
             else
             {
-                // Or set qty and price to 0
                 model.Quantity = 0;
                 model.Price = 0m;
             }
 
-            // Return partial view with model
             return PartialView(model);
         }
 
         public ActionResult AddToCartPartial(int id)
         {
-            // Init CartVM list
             List<CartVM> cart = Session["cart"] as List<CartVM> ?? new List<CartVM>();
 
-            // Init CartVM
             CartVM model = new CartVM();
 
             using (Db db = new Db())
             {
-                // Get the product
                 ProductDTO product = db.Product.Find(id);
 
-                // Check if the product is already in cart
                 var productInCart = cart.FirstOrDefault(x => x.ProductId == id);
 
-                // If not, add new
                 if (productInCart == null)
                 {
                     cart.Add(new CartVM()
@@ -108,12 +91,9 @@ namespace OfficialBookStore.Controllers
                 }
                 else
                 {
-                    // If it is, increment
                     productInCart.Quantity++;
                 }
             }
-
-            // Get total qty and price and add to model
 
             int qty = 0;
             decimal price = 0m;
@@ -127,30 +107,23 @@ namespace OfficialBookStore.Controllers
             model.Quantity = qty;
             model.Price = price;
 
-            // Save cart back to session
             Session["cart"] = cart;
 
-            // Return partial view with model
             return PartialView(model);
         }
 
         public JsonResult IncrementProduct(int productId)
         {
-            // Init cart list
             List<CartVM> cart = Session["cart"] as List<CartVM>;
 
             using (Db db = new Db())
             {
-                // Get cartVM from list
                 CartVM model = cart.FirstOrDefault(x => x.ProductId == productId);
 
-                // Increment qty
                 model.Quantity++;
 
-                // Store needed data
                 var result = new { qty = model.Quantity, price = model.Price };
 
-                // Return json with data
                 return Json(result, JsonRequestBehavior.AllowGet);
             }
 
@@ -158,15 +131,12 @@ namespace OfficialBookStore.Controllers
 
         public ActionResult DecrementProduct(int productId)
         {
-            // Init cart
             List<CartVM> cart = Session["cart"] as List<CartVM>;
 
             using (Db db = new Db())
             {
-                // Get model from list
                 CartVM model = cart.FirstOrDefault(x => x.ProductId == productId);
 
-                // Decrement qty
                 if (model.Quantity > 1)
                 {
                     model.Quantity--;
@@ -177,10 +147,8 @@ namespace OfficialBookStore.Controllers
                     cart.Remove(model);
                 }
 
-                // Store needed data
                 var result = new { qty = model.Quantity, price = model.Price };
 
-                // Return json
                 return Json(result, JsonRequestBehavior.AllowGet);
             }
 
@@ -188,15 +156,12 @@ namespace OfficialBookStore.Controllers
 
         public void RemoveProduct(int productId)
         {
-            // Init cart list
             List<CartVM> cart = Session["cart"] as List<CartVM>;
 
             using (Db db = new Db())
             {
-                // Get model from list
                 CartVM model = cart.FirstOrDefault(x => x.ProductId == productId);
 
-                // Remove model from list
                 cart.Remove(model);
             }
 
@@ -212,24 +177,19 @@ namespace OfficialBookStore.Controllers
         [HttpPost]
         public void PlaceOrder()
         {
-            // Get cart list
             List<CartVM> cart = Session["cart"] as List<CartVM>;
 
-            // Get username
             string username = User.Identity.Name;
 
             int orderId = 0;
 
             using (Db db = new Db())
             {
-                // Init OrderDTO
                 OrderDTO orderDTO = new OrderDTO();
 
-                // Get user id
                 var q = db.User.FirstOrDefault(x => x.UserName == username);
                 int userId = q.Id;
 
-                // Add to OrderDTO and save
                 orderDTO.UserId = userId;
                 orderDTO.CreatedAt = DateTime.Now;
 
@@ -237,13 +197,10 @@ namespace OfficialBookStore.Controllers
 
                 db.SaveChanges();
 
-                // Get inserted id
                 orderId = orderDTO.OrderId;
 
-                // Init OrderDetailsDTO
                 OrderDetailsDTO orderDetailsDTO = new OrderDetailsDTO();
 
-                // Add to OrderDetailsDTO
                 foreach (var item in cart)
                 {
                     orderDetailsDTO.OrderId = orderId;
@@ -257,14 +214,12 @@ namespace OfficialBookStore.Controllers
                 }
             }
 
-            // Email admin
             var client = new SmtpClient("smtp.mailtrap.io", 2525)
             {
                 Credentials = new NetworkCredential("ea6b1bda758d46", "eac432355b0b26"),
                 EnableSsl = true
             };
-            client.Send("master@example.com", "master@example.com", "New Order", "You have a new order. Order number " + orderId);
-            // Reset session
+            client.Send("master@example.com", "master@example.com", "New Order", "MASTER, YOU HAVE A NEW ORDE! Order number " + orderId);
             Session["cart"] = null;
         }
     }
