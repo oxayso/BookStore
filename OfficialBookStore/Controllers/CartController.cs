@@ -219,7 +219,7 @@ namespace OfficialBookStore.Controllers
                 Credentials = new NetworkCredential("ea6b1bda758d46", "eac432355b0b26"),
                 EnableSsl = true
             };
-            client.Send("master@example.com", "master@example.com", "New Order", "MASTER, YOU HAVE A NEW ORDE! Order number " + orderId);
+            client.Send("master@example.com", "master@example.com", "New Order", "MASTER, YOU HAVE A NEW ORDER! Order number: " + orderId);
             Session["cart"] = null;
         }
     }

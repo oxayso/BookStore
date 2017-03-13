@@ -96,7 +96,7 @@ else
         </form>
     </div>
     <br />
-    <a href="#" class="placeorder btn btn-primary pull-right">Checkout Now</a>
+    <a href="#" class="placeorder btn btn-primary pull-right">Pay Now</a>
 
 }
 
@@ -213,7 +213,7 @@ $(function () {
         $(".ajaxbg").show();
 
         $.post(url, { }, function (data) {
-            $(".ajaxbg span").text("Thank you for shopping at Olivia's Bookstore. You will now be redirected to PayPal.");
+            $(".ajaxbg span").text("THANK YOU for shopping at Olivia's Bookstore. You will now be redirected to PayPal.");
             setTimeout(function () {
                 $('form input[name="submit"]').click();
             }, 2000);
