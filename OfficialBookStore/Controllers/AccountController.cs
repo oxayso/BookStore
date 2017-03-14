@@ -49,7 +49,7 @@ namespace OfficialBookStore.Controllers
 
             if (!isValid)
             {
-                ModelState.AddModelError("", "Invalid username or password.");
+                ModelState.AddModelError("", "ERROR: Invalid username or password.");
                 return View(model);
             }
             else
